@@ -1,0 +1,25 @@
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { ConsistencyService } from './consistency.service';
+import { PromotionInput, PromotionResult } from './dto/promotion.dto';
+import { GqlAuthGuard } from '../auth/gql-auth.guard';
+
+@Resolver()
+export class ConsistencyResolver {
+  constructor(private readonly consistencyService: ConsistencyService) {}
+
+  @Query(() => [String], { name: 'commitStatus' })
+  @UseGuards(GqlAuthGuard)
+  getCommitStatus(): string[] {
+    // Basic mock implementation for commit status
+    return ['dev', 'qa'];
+  }
+
+  @Mutation(() => PromotionResult, { name: 'checkPromotion' })
+  @UseGuards(GqlAuthGuard)
+  async checkPromotion(
+    @Args('input') input: PromotionInput,
+  ): Promise<PromotionResult> {
+    return this.consistencyService.checkPromotion(input);
+  }
+}

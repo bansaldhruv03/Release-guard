@@ -1,0 +1,43 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Environment {
+  id: ID!
+  name: String!
+  orderIndex: Int!
+  branchPattern: String!
+}
+
+type ReasonDetail {
+  commitId: String!
+  missingInEnvironments: [String!]!
+}
+
+type PromotionResult {
+  allowed: Boolean!
+  status: String!
+  reasons: [ReasonDetail!]
+  message: String
+}
+
+type LoginResponse {
+  access_token: String!
+}
+
+type Query {
+  environments: [Environment!]!
+  commitStatus: [String!]!
+}
+
+type Mutation {
+  login(username: String!, password: String!): LoginResponse!
+  checkPromotion(input: PromotionInput!): PromotionResult!
+}
+
+input PromotionInput {
+  sourceBranch: String!
+  targetBranch: String!
+  commitRange: [String!]
+  ticketIds: [String!]
+}

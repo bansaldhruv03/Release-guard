@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Release Guard Developer Dashboard - Monitor Environment Consistency">
+  <title>Release Guard Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Ambient Glow Background Anim */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -20%; left: -10%;
+      width: 50vw; height: 50vw;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: drift 20s infinite alternate linear;
+      z-index: -1;
+    }
+
+    @keyframes drift {
+      100% { transform: translate(20%, 30%) scale(1.1); }
+    }
+
+    header {
+      width: 100%;
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0; z-index: 100;
+    }
+
+    h1 {
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    h1 span { color: var(--accent); }
+
+    main {
+      width: 100%;
+      max-width: 1200px;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .pipeline-view {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      position: relative;
+    }
+
+    /* Connecting line for pipeline */
+    .pipeline-view::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 5%; right: 5%;
+      height: 2px;
+      background: var(--glass-border);
+      z-index: 0;
+    }
+
+    .env-node {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .env-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--bg-gradient);
+      border: 2px solid var(--glass-border);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--text-main);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .env-node.active .env-circle {
+      border-color: var(--success);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      color: var(--success);
+    }
+
+    .env-node.behind .env-circle {
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .env-circle:hover {
+      transform: scale(1.1);
+      border-color: var(--accent);
+    }
+
+    .env-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .search-box {
+      width: 100%;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      color: white;
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .search-button {
+      position: absolute;
+      right: 5px; top: 5px; bottom: 5px;
+      background: var(--accent);
+      border: none;
+      border-radius: 50px;
+      padding: 0 1.5rem;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .search-button:hover { background: #0ea5e9; }
+
+    .metrics-header { font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent); }
+    
+    .list-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .list-item:last-child { border-bottom: none; }
+    
+    .hash { font-family: monospace; color: var(--accent); }
+
+    /* Button and Micro-animations */
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+    }
+    
+    .btn:hover { background: rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛡️ Release <span>Guard</span></h1>
+    <button class="btn" id="refreshBtn">Sync Policy Metrics</button>
+  </header>
+
+  <main>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by Commit SHA or Ticket ID (e.g. PAY-123)..." />
+      <button class="search-button" onclick="searchCommit()">Verify Coverage</button>
+    </div>
+
+    <section class="glass-card">
+      <h2 class="metrics-header">Environment Consistency Pipeline</h2>
+      <p style="color: var(--text-muted); margin-bottom: 2rem;">Real-time view of code promotion mapped against your Cloud Deploy targets.</p>
+      
+      <div class="pipeline-view" id="pipelineFlow">
+        <div class="env-node active">
+          <div class="env-circle">DEV</div>
+          <span class="env-label">feature/*</span>
+        </div>
+        <div class="env-node active">
+          <div class="env-circle">QA</div>
+          <span class="env-label">develop</span>
+        </div>
+        <div class="env-node behind">
+          <div class="env-circle">STG</div>
+          <span class="env-label" style="color: var(--warning)">⚠️ Out of Sync</span>
+        </div>
+        <div class="env-node">
+          <div class="env-circle">PROD</div>
+          <span class="env-label">main</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+      <div class="glass-card">
+        <h3 class="metrics-header">Recent Policy Violations</h3>
+        <div class="list-item">
+          <div>
+            <span class="hash">#a1b2c3d</span> - Direct push to main blocked
+          </div>
+          <span style="color: var(--danger)">10m ago</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <span class="hash">#f8e7d6c</span> - Commit missing in QA for STG promotion
+          </div>
+          <span style="color: var(--danger)">1h ago</span>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <h3 class="metrics-header">Commits Pending Promotion</h3>
+        <div class="list-item">
+          <div>
+            <span class="hash">#72b3a1c</span> - Update Redis cache (DEV -> QA)
+          </div>
+        </div>
+        <div class="list-item">
+          <div>
+            <span class="hash">#99c1d2e</span> - Fix checkout bug (QA -> STG)
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // In a real scenario, this fetches from the GraphQL endpoint via Apollo/fetch
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      const btn = document.getElementById('refreshBtn');
+      btn.innerText = 'Syncing...';
+      btn.style.opacity = '0.7';
+      setTimeout(() => {
+        btn.innerText = 'Sync Policy Metrics';
+        btn.style.opacity = '1';
+        alert('Environments synchronized with GitLab source of truth.');
+      }, 1000);
+    });
+
+    function searchCommit() {
+      const val = document.getElementById('searchInput').value;
+      if (!val) return;
+      
+      const nodes = document.querySelectorAll('.env-node');
+      // Simulate API response highlighting where the commit exists visually
+      nodes.forEach(n => {
+        n.classList.remove('active', 'behind');
+        n.querySelector('.env-circle').style.borderColor = 'var(--glass-border)';
+      });
+
+      // Mock random coverage
+      nodes[0].classList.add('active'); // always in dev
+      if (Math.random() > 0.5) nodes[1].classList.add('active');
+      if (Math.random() > 0.8) nodes[2].classList.add('active');
+    }
+  </script>
+</body>
+</html>
