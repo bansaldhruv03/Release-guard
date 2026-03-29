@@ -1,11 +1,11 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID', '.']
   
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$COMMIT_SHA']
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID']
     
   # Create a release in Google Cloud Deploy
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -16,10 +16,10 @@ steps:
         gcloud deploy releases create release-$BUILD_ID
         --delivery-pipeline release-guard-pipeline
         --region us-central1
-        --build-artifacts release-guard-backend=us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$COMMIT_SHA
+        --build-artifacts release-guard-backend=us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID
 
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID'
 
 options:
   logging: CLOUD_LOGGING_ONLY
