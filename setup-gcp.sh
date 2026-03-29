@@ -1,6 +1,7 @@
 #!/bin/bash
 # GCP Pre-flight Check & API Enablement
-PROJECT_ID="project-f685236d-caf1-43ab-ac0"
+# TODO: Replace with your actual new GCP Project ID
+PROJECT_ID="poc-project-491709"
 
 echo "🔍 Verifying APIs for $PROJECT_ID..."
 
@@ -12,6 +13,7 @@ SERVICES=(
   "artifactregistry.googleapis.com"
   "secretmanager.googleapis.com"
   "storage.googleapis.com"
+  "clouddeploy.googleapis.com"
 )
 
 for SERVICE in "${SERVICES[@]}"; do
@@ -22,4 +24,4 @@ done
 echo "⚙️ Setting local configuration..."
 gcloud config set project $PROJECT_ID
 
-echo "🚀 Ready! Please try running ./deploy.sh again."
+echo "🚀 Ready! APIs enabled."

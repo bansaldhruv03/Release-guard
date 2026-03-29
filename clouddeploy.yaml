@@ -1,0 +1,19 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: release-guard-pipeline
+description: Delivery pipeline for the Release Guard backend
+serialPipeline:
+  stages:
+  - targetId: run-prod
+    profiles: [prod]
+
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: run-prod
+description: Production Cloud Run service
+run:
+  location: projects/poc-project-491709/locations/us-central1
