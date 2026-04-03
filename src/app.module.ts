@@ -17,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
 import { SeedModule } from './seed/seed.module';
 import { Environment } from './policy/entities/environment.entity';
 import { User } from './auth/entities/user.entity';
+import { ExternalAccount } from './auth/entities/external-account.entity';
 import { OrganizationModule } from './organization/organization.module';
 import { Organization } from './organization/organization.entity';
 import { PromotionRule } from './organization/promotion-rule.entity';
@@ -46,7 +47,7 @@ import { Integration } from './organization/integration.entity';
           return {
             type: 'sqlite',
             database: isProduction ? '/tmp/release-guard.sqlite' : 'release-guard.sqlite',
-            entities: [Environment, User, Organization, PromotionRule, Integration],
+            entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration],
             synchronize: true,
             logging: false,
           };
@@ -58,7 +59,7 @@ import { Integration } from './organization/integration.entity';
           username: config.get('DB_USERNAME'),
           password: config.get('DB_PASSWORD'),
           database: config.get('DB_NAME'),
-          entities: [Environment, User, Organization, PromotionRule, Integration],
+          entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration],
           synchronize: true,
         };
       },
