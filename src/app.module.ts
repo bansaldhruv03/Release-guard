@@ -17,6 +17,10 @@ import { AuthModule } from './auth/auth.module';
 import { SeedModule } from './seed/seed.module';
 import { Environment } from './policy/entities/environment.entity';
 import { User } from './auth/entities/user.entity';
+import { OrganizationModule } from './organization/organization.module';
+import { Organization } from './organization/organization.entity';
+import { PromotionRule } from './organization/promotion-rule.entity';
+import { Integration } from './organization/integration.entity';
 
 @Module({
   imports: [
@@ -40,8 +44,8 @@ import { User } from './auth/entities/user.entity';
           // Zero-config fallback for cloud demos
           return {
             type: 'sqlite',
-            database: '/tmp/release-guard.sqlite',
-            entities: [Environment, User],
+            database: 'release-guard.sqlite',
+            entities: [Environment, User, Organization, PromotionRule, Integration],
             synchronize: true,
             logging: true,
           };
@@ -53,7 +57,7 @@ import { User } from './auth/entities/user.entity';
           username: config.get('DB_USERNAME'),
           password: config.get('DB_PASSWORD'),
           database: config.get('DB_NAME'),
-          entities: [Environment, User],
+          entities: [Environment, User, Organization, PromotionRule, Integration],
           synchronize: true,
         };
       },
@@ -69,6 +73,7 @@ import { User } from './auth/entities/user.entity';
     PolicyModule,
     ConsistencyModule,
     GitlabModule,
+    OrganizationModule,
     // SeedModule, // Disabled temporarily for faster Cloud Run startup
   ],
   controllers: [AppController],

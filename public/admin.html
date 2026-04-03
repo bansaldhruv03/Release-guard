@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Release Guard - Organization Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+    header {
+      width: 100%; padding: 1.5rem 4rem; display: flex;
+      justify-content: space-between; align-items: center;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100;
+    }
+    h1 { font-weight: 800; font-size: 1.5rem; }
+    h1 span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; }
+    .nav-links a:hover { color: var(--text-main); }
+    main { width: 100%; max-width: 1200px; padding: 3rem 2rem; position: relative; }
+    
+    .glass-card {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border); border-radius: 16px;
+      padding: 2rem; margin-bottom: 2rem;
+    }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--glass-border); }
+    th { color: var(--accent); font-weight: 600; }
+    
+    .badge { padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    
+    .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; transition: 0.2s; }
+    .btn:hover { background: #0ea5e9; }
+    .btn-secondary { background: transparent; border: 1px solid var(--glass-border); }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+    .btn-danger { background: rgba(239, 68, 68, 0.8); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 1); }
+
+    /* Modal Form */
+    #ruleModal {
+      display: none; position: fixed; top: 50%; left: 50%; width: 450px;
+      transform: translate(-50%, -50%); z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 999;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+    .form-control {
+      width: 100%; padding: 0.8rem 1.2rem; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border); border-radius: 8px; color: white; outline: none;
+    }
+    .form-control:focus { border-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛡️ Release <span>Guard</span></h1>
+    <div class="nav-links">
+      <a href="/">Dashboard</a>
+      <a href="/admin.html" style="color:var(--text-main)">Org Admin</a>
+      <a href="/integrations.html">Integrations</a>
+      <a href="/">Logout</a>
+    </div>
+  </header>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+
+  <div class="glass-card" id="ruleModal">
+    <h2 id="modalTitle" style="margin-bottom: 1.5rem;">Add New Rule</h2>
+    <input type="hidden" id="editRuleId" />
+    <div class="form-group">
+      <label>Source Branch (Pattern)</label>
+      <input type="text" id="sourceBranch" class="form-control" placeholder="e.g. feature/*">
+    </div>
+    <div class="form-group">
+      <label>Target Branch</label>
+      <input type="text" id="targetBranch" class="form-control" placeholder="e.g. develop">
+    </div>
+    <div style="display:flex; gap: 1rem;">
+      <div class="form-group" style="flex:1">
+        <label>Source Env</label>
+        <input type="text" id="sourceEnv" class="form-control" placeholder="DEV">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Target Env</label>
+        <input type="text" id="targetEnv" class="form-control" placeholder="QA">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Policy State</label>
+      <select id="isEnforced" class="form-control" style="background:var(--bg-gradient)">
+        <option value="true">Enforced</option>
+        <option value="false">Audit Only</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:1rem; margin-top:2rem;">
+      <button class="btn" style="flex:1" onclick="saveRule()">Save</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="glass-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+        <div>
+          <h2>Branching Strategy & Promotion Rules</h2>
+          <p style="color: var(--text-muted); margin-top: 0.5rem;">Define how code promotes through your environments.</p>
+        </div>
+        <button class="btn" onclick="openAddModal()">+ Add New Rule</button>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Source Branch</th>
+            <th>Target Branch</th>
+            <th>Source Env</th>
+            <th>Target Env</th>
+            <th>Policy Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rulesTable">
+          <!-- Populated dynamically via GraphQL -->
+          <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Loading Rules...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass-card">
+      <h2>Organization Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>MFA Enabled</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>admin@myorg.com</td>
+            <td>Admin</td>
+            <td><span class="badge badge-success">Yes</span></td>
+            <td><button class="btn btn-secondary">Revoke</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    // Hardcoded demo Org ID for POC simplicity since creating org flows aren't built
+    const ORG_ID = "def1024b-abcd-4114-1234-abcd00000001";
+    let loadedRules = [];
+
+    async function fetchRules() {
+      const query = `
+        query {
+          promotionRules(organizationId: "${ORG_ID}") {
+            id sourceBranch targetBranch sourceEnvironment targetEnvironment allowed
+          }
+        }
+      `;
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const result = await res.json();
+        const tbody = document.getElementById('rulesTable');
+        if (result.errors || !result.data) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger)">Failed to load. Missing org or DB error. Creating default schema on next mutation...</td></tr>`;
+          return;
+        }
+        loadedRules = result.data.promotionRules || [];
+        
+        if (loadedRules.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No rules configured yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = loadedRules.map(rule => `
+          <tr>
+            <td><code>${rule.sourceBranch}</code></td>
+            <td><code>${rule.targetBranch}</code></td>
+            <td>${rule.sourceEnvironment || '-'}</td>
+            <td>${rule.targetEnvironment || '-'}</td>
+            <td><span class="badge ${rule.allowed ? 'badge-success' : 'badge-warning'}">${rule.allowed ? 'Enforced' : 'Audit Only'}</span></td>
+            <td>
+              <button class="btn" style="margin-right:0.5rem;" onclick="openEditModal('${rule.id}')">Edit</button>
+              <button class="btn btn-danger" onclick="deleteRule('${rule.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) { }
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').innerText = 'Add New Rule';
+      document.getElementById('editRuleId').value = '';
+      document.getElementById('sourceBranch').value = '';
+      document.getElementById('targetBranch').value = '';
+      document.getElementById('sourceEnv').value = '';
+      document.getElementById('targetEnv').value = '';
+      document.getElementById('isEnforced').value = 'true';
+      
+      document.getElementById('ruleModal').style.display = 'block';
+      document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    function openEditModal(id) {
+      document.getElementById('modalTitle').innerText = 'Edit Rule';
+      const rule = loadedRules.find(r => r.id === id);
+      document.getElementById('editRuleId').value = rule.id;
+      document.getElementById('sourceBranch').value = rule.sourceBranch;
+      document.getElementById('targetBranch').value = rule.targetBranch;
+      document.getElementById('sourceEnv').value = rule.sourceEnvironment || '';
+      document.getElementById('targetEnv').value = rule.targetEnvironment || '';
+      document.getElementById('isEnforced').value = rule.allowed ? 'true' : 'false';
+      
+      document.getElementById('ruleModal').style.display = 'block';
+      document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('ruleModal').style.display = 'none';
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    async function saveRule() {
+      const id = document.getElementById('editRuleId').value;
+      const data = {
+        sourceBranch: document.getElementById('sourceBranch').value,
+        targetBranch: document.getElementById('targetBranch').value,
+        sourceEnvironment: document.getElementById('sourceEnv').value,
+        targetEnvironment: document.getElementById('targetEnv').value,
+        allowed: document.getElementById('isEnforced').value === 'true'
+      };
+
+      if (!data.sourceBranch || !data.targetBranch) return alert("Source and Target Branch are required");
+
+      const isUpdate = !!id;
+      const mutation = isUpdate ? `
+        mutation {
+          updatePromotionRule(
+             id: "${id}",
+             sourceBranch: "${data.sourceBranch}",
+             targetBranch: "${data.targetBranch}",
+             sourceEnvironment: "${data.sourceEnvironment}",
+             targetEnvironment: "${data.targetEnvironment}",
+             allowed: ${data.allowed}
+          ) { id }
+        }
+      ` : `
+        mutation {
+          createPromotionRule(
+             organizationId: "${ORG_ID}",
+             sourceBranch: "${data.sourceBranch}",
+             targetBranch: "${data.targetBranch}",
+             sourceEnvironment: "${data.sourceEnvironment}",
+             targetEnvironment: "${data.targetEnvironment}",
+             allowed: ${data.allowed}
+          ) { id }
+        }
+      `;
+
+      await fetch('/graphql', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: mutation })
+      });
+      closeModal();
+      fetchRules();
+    }
+
+    async function deleteRule(id) {
+       if(!confirm("Delete this promotion rule?")) return;
+       const query = `mutation { deletePromotionRule(id: "${id}") }`;
+       await fetch('/graphql', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      fetchRules();
+    }
+
+    window.onload = fetchRules;
+  </script>
+</body>
+</html>

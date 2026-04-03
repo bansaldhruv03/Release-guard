@@ -7,6 +7,9 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthResolver } from './auth.resolver';
 import { User } from './entities/user.entity';
+import { AuthController } from './auth.controller';
+import { GithubStrategy } from './github.strategy';
+import { GitlabStrategy } from './gitlab.strategy';
 
 @Module({
   imports: [
@@ -21,7 +24,8 @@ import { User } from './entities/user.entity';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, AuthResolver],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, AuthResolver, GithubStrategy, GitlabStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

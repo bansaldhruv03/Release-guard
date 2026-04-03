@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Organization } from '../../organization/organization.entity';
 
 @ObjectType()
 @Entity()
@@ -10,13 +11,24 @@ export class Environment {
 
   @Field()
   @Column({ unique: true })
-  name: string; // e.g., 'dev', 'qa', 'stage', 'prod'
+  name: string;
 
   @Field(() => Int)
   @Column()
-  orderIndex: number; // e.g., 1, 2, 3, 4
+  orderIndex: number;
 
   @Field()
   @Column()
-  branchPattern: string; // e.g., 'develop', 'qa', 'stage', 'main'
+  branchPattern: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  description: string;
+
+  @ManyToOne(() => Organization, { nullable: true, onDelete: 'SET NULL' })
+  organization: Organization;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  organizationId: string;
 }

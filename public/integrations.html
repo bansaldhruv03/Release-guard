@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Release Guard - Integrations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    header {
+      width: 100%; padding: 1.5rem 4rem; display: flex;
+      justify-content: space-between; align-items: center;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100;
+    }
+    h1 { font-weight: 800; font-size: 1.5rem; }
+    h1 span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+    main { width: 100%; max-width: 1200px; padding: 3rem 2rem; }
+
+    .page-header { margin-bottom: 2.5rem; }
+    .page-header h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+
+    .integration-card {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border); border-radius: 16px;
+      padding: 2rem; text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .integration-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+    .provider-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin: 0 auto 1rem auto;
+    }
+    .icon-github { background: rgba(255,255,255,0.1); }
+    .icon-gitlab { background: rgba(252, 109, 38, 0.15); }
+    .icon-jira   { background: rgba(56, 189, 248, 0.15); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+      margin: 1rem 0;
+    }
+    .status-badge.connected { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+    .status-badge.disconnected { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--glass-border); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot.green { background: var(--success); animation: pulse 2s infinite; }
+    .dot.grey { background: var(--text-muted); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .btn {
+      padding: 0.7rem 1.2rem; border-radius: 8px; border: none;
+      font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #0ea5e9; transform: translateY(-1px); }
+    .btn-secondary { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+    .btn-danger-outline { background: transparent; border: 1px solid rgba(239,68,68,0.5); color: var(--danger); }
+    .btn-danger-outline:hover { background: rgba(239,68,68,0.1); }
+
+    .btn-group { display: flex; gap: 0.75rem; flex-direction: column; margin-top: 0.75rem; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset:0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 998;
+    }
+    .modal {
+      display: none; position: fixed; top:50%; left:50%; width: 480px;
+      transform: translate(-50%,-50%); z-index: 999;
+      background: linear-gradient(145deg, #1a2640, #0f172a);
+      border: 1px solid var(--glass-border); border-radius: 20px; padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal h3 { font-size: 1.3rem; margin-bottom: 0.4rem; }
+    .modal .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display:block; margin-bottom:0.5rem; font-size:0.88rem; color:var(--text-muted); }
+    .form-control {
+      width:100%; padding:0.8rem 1rem; border-radius:8px;
+      background:rgba(255,255,255,0.06); border:1px solid var(--glass-border);
+      color:var(--text-main); outline:none; transition:border-color 0.2s; font-size:0.95rem;
+    }
+    .form-control:focus { border-color: var(--accent); }
+    .modal-actions { display:flex; gap:1rem; margin-top:2rem; }
+    .modal-actions .btn { flex:1; }
+
+    .info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border); font-size: 0.9rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:first-child { color: var(--text-muted); }
+    .info-row span:last-child { color: var(--text-main); font-weight: 600; }
+    .info-box { margin: 1rem 0; }
+
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem;
+      border-radius: 12px; font-weight: 600; z-index: 1100;
+      animation: slideIn 0.3s ease; display: none;
+    }
+    .toast.success { background: rgba(16,185,129,0.9); color:#fff; }
+    .toast.error { background: rgba(239,68,68,0.9); color:#fff; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛡️ Release <span>Guard</span></h1>
+    <div class="nav-links">
+      <a href="/">Dashboard</a>
+      <a href="/admin.html">Org Admin</a>
+      <a href="/integrations.html" class="active">Integrations</a>
+      <a href="/">Logout</a>
+    </div>
+  </header>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+
+  <!-- GITHUB SETTINGS MODAL -->
+  <div class="modal" id="githubModal">
+    <h3>GitHub Integration</h3>
+    <div class="subtitle">Manage your GitHub OAuth connection for repo access and webhooks.</div>
+    <div class="info-box">
+      <div class="info-row"><span>Status</span><span style="color:var(--success)">● Connected via OAuth</span></div>
+      <div class="info-row"><span>Client ID</span><span>Ov23liHyge...</span></div>
+      <div class="info-row"><span>Callback URL</span><span>/auth/github/callback</span></div>
+      <div class="info-row"><span>Scope</span><span>user:email</span></div>
+    </div>
+    <div class="form-group">
+      <label>Webhook Secret (optional)</label>
+      <input type="password" id="ghWebhookSecret" class="form-control" placeholder="Leave blank to keep unchanged" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger-outline" onclick="disconnectIntegration('github')">Disconnect</button>
+      <button class="btn btn-secondary" onclick="closeAllModals()">Close</button>
+      <button class="btn btn-primary" onclick="saveGithubSettings()">Save</button>
+    </div>
+  </div>
+
+  <!-- GITLAB CONNECT MODAL -->
+  <div class="modal" id="gitlabModal">
+    <h3>Connect GitLab</h3>
+    <div class="subtitle">Add your GitLab Application credentials to enable CI/CD pipeline sync.</div>
+    <div class="form-group">
+      <label>GitLab Application ID (Client ID)</label>
+      <input type="text" id="glClientId" class="form-control" placeholder="e.g. abc123def456..." />
+    </div>
+    <div class="form-group">
+      <label>Application Secret (Client Secret)</label>
+      <input type="password" id="glClientSecret" class="form-control" placeholder="••••••••••••" />
+    </div>
+    <div class="form-group">
+      <label>GitLab Instance URL</label>
+      <input type="text" id="glInstanceUrl" class="form-control" value="https://gitlab.com" />
+    </div>
+    <p style="color:var(--text-muted); font-size:0.82rem; margin-top:0.5rem;">
+      Set Redirect URI in your GitLab OAuth App to: <code style="color:var(--accent)">http://localhost:3000/auth/gitlab/callback</code>
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGitlabSettings()">Connect GitLab</button>
+    </div>
+  </div>
+
+  <!-- GITLAB SETTINGS MODAL (when connected) -->
+  <div class="modal" id="gitlabSettingsModal">
+    <h3>GitLab Integration</h3>
+    <div class="subtitle">Manage your connected GitLab OAuth application.</div>
+    <div class="info-box">
+      <div class="info-row"><span>Status</span><span style="color:var(--success)">● Connected via OAuth</span></div>
+      <div class="info-row"><span>Instance</span><span id="glInstanceDisplay">https://gitlab.com</span></div>
+      <div class="info-row"><span>Callback URL</span><span>/auth/gitlab/callback</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger-outline" onclick="disconnectIntegration('gitlab')">Disconnect</button>
+      <button class="btn btn-secondary" onclick="closeAllModals()">Close</button>
+    </div>
+  </div>
+
+  <!-- JIRA SETTINGS MODAL -->
+  <div class="modal" id="jiraModal">
+    <h3>Jira Software Integration</h3>
+    <div class="subtitle">Manage your Jira workspace connection for ticket-commit linking.</div>
+    <div class="form-group">
+      <label>Jira Site URL</label>
+      <input type="text" id="jiraSiteUrl" class="form-control" placeholder="https://yourorg.atlassian.net" />
+    </div>
+    <div class="form-group">
+      <label>Jira Email</label>
+      <input type="email" id="jiraEmail" class="form-control" placeholder="admin@yourorg.com" />
+    </div>
+    <div class="form-group">
+      <label>Jira API Token</label>
+      <input type="password" id="jiraApiToken" class="form-control" placeholder="••••••••••••" />
+    </div>
+    <p style="color:var(--text-muted); font-size:0.82rem; margin-top:0.5rem;">
+      Generate an API token at: <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:var(--accent)">Atlassian Account Settings</a>
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-danger-outline" onclick="disconnectIntegration('jira')">Disconnect</button>
+      <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveJiraSettings()">Save</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <main>
+    <div class="page-header">
+      <h2>Connected Integrations</h2>
+      <p style="color: var(--text-muted);">Manage how Release Guard connects to your developer tools.</p>
+    </div>
+
+    <div class="grid">
+      <!-- GITHUB -->
+      <div class="integration-card" id="card-github">
+        <div class="provider-icon icon-github">🐙</div>
+        <h3>GitHub</h3>
+        <p style="color: var(--text-muted); margin-top:0.5rem; font-size: 0.9rem;">Provides commits, PR statuses, and repository webhooks via OAuth.</p>
+        <div class="status-badge connected" id="status-github">
+          <div class="dot green"></div> Connected
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="openModal('githubModal')">⚙️ Settings</button>
+        </div>
+      </div>
+
+      <!-- GITLAB -->
+      <div class="integration-card" id="card-gitlab">
+        <div class="provider-icon icon-gitlab">🦊</div>
+        <h3>GitLab</h3>
+        <p style="color: var(--text-muted); margin-top:0.5rem; font-size: 0.9rem;">Syncs CI/CD pipeline states and merge request data into Release Guard.</p>
+        <div class="status-badge disconnected" id="status-gitlab">
+          <div class="dot grey"></div> Not Connected
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="btn-gitlab" onclick="openGitlabModal()">Connect GitLab</button>
+        </div>
+      </div>
+
+      <!-- JIRA -->
+      <div class="integration-card" id="card-jira">
+        <div class="provider-icon icon-jira">📋</div>
+        <h3>Jira Software</h3>
+        <p style="color: var(--text-muted); margin-top:0.5rem; font-size: 0.9rem;">Links commit SHAs to Jira issues to track feature ticket status automatically.</p>
+        <div class="status-badge connected" id="status-jira">
+          <div class="dot green"></div> Connected
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="openModal('jiraModal')">⚙️ Settings</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const ORG_ID = "def1024b-abcd-4114-1234-abcd00000001";
+
+    // State persisted in localStorage for POC
+    const state = {
+      github: JSON.parse(localStorage.getItem('rg_github') || '{"connected":true}'),
+      gitlab: JSON.parse(localStorage.getItem('rg_gitlab') || '{"connected":false}'),
+      jira:   JSON.parse(localStorage.getItem('rg_jira')   || '{"connected":true,"siteUrl":"","email":"","token":""}'),
+    };
+
+    function saveState() {
+      localStorage.setItem('rg_github', JSON.stringify(state.github));
+      localStorage.setItem('rg_gitlab', JSON.stringify(state.gitlab));
+      localStorage.setItem('rg_jira',   JSON.stringify(state.jira));
+    }
+
+    function renderCards() {
+      renderCard('github', state.github.connected);
+      renderCard('gitlab', state.gitlab.connected);
+      renderCard('jira',   state.jira.connected);
+
+      // Update gitlab button
+      const glBtn = document.getElementById('btn-gitlab');
+      if (state.gitlab.connected) {
+        glBtn.textContent = '⚙️ Settings';
+        glBtn.className = 'btn btn-secondary';
+        glBtn.onclick = () => openModal('gitlabSettingsModal');
+        document.getElementById('glInstanceDisplay').textContent = state.gitlab.instanceUrl || 'https://gitlab.com';
+      } else {
+        glBtn.textContent = 'Connect GitLab';
+        glBtn.className = 'btn btn-primary';
+        glBtn.onclick = openGitlabModal;
+      }
+
+      // Populate jira fields
+      if (state.jira.siteUrl) document.getElementById('jiraSiteUrl').value = state.jira.siteUrl;
+      if (state.jira.email) document.getElementById('jiraEmail').value = state.jira.email;
+    }
+
+    function renderCard(provider, isConnected) {
+      const badge = document.getElementById(`status-${provider}`);
+      badge.className = `status-badge ${isConnected ? 'connected' : 'disconnected'}`;
+      badge.innerHTML = isConnected
+        ? '<div class="dot green"></div> Connected'
+        : '<div class="dot grey"></div> Not Connected';
+    }
+
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    function openGitlabModal() {
+      openModal(state.gitlab.connected ? 'gitlabSettingsModal' : 'gitlabModal');
+    }
+
+    function closeAllModals() {
+      ['githubModal','gitlabModal','gitlabSettingsModal','jiraModal'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    function saveGithubSettings() {
+      const secret = document.getElementById('ghWebhookSecret').value;
+      if (secret) {
+        console.log('[Release Guard] GitHub webhook secret saved (stored locally)');
+      }
+      showToast('✅ GitHub settings saved!');
+      closeAllModals();
+    }
+
+    function saveGitlabSettings() {
+      const clientId     = document.getElementById('glClientId').value.trim();
+      const clientSecret = document.getElementById('glClientSecret').value.trim();
+      const instanceUrl  = document.getElementById('glInstanceUrl').value.trim();
+
+      if (!clientId || !clientSecret) {
+        showToast('⚠️ Application ID and Secret are required.', 'error');
+        return;
+      }
+
+      // Save to state and redirect to OAuth
+      state.gitlab = { connected: false, clientId, instanceUrl };
+      saveState();
+      showToast('🔗 Redirecting to GitLab OAuth...', 'success');
+
+      setTimeout(() => {
+        window.location.href = '/auth/gitlab';
+      }, 1000);
+    }
+
+    function saveJiraSettings() {
+      const siteUrl = document.getElementById('jiraSiteUrl').value.trim();
+      const email   = document.getElementById('jiraEmail').value.trim();
+      const token   = document.getElementById('jiraApiToken').value.trim();
+
+      if (!siteUrl || !email || !token) {
+        showToast('⚠️ All Jira fields are required.', 'error');
+        return;
+      }
+
+      state.jira = { connected: true, siteUrl, email, token };
+      saveState();
+      renderCards();
+      showToast('✅ Jira integration saved!');
+      closeAllModals();
+    }
+
+    function disconnectIntegration(provider) {
+      if (!confirm(`Disconnect ${provider.charAt(0).toUpperCase() + provider.slice(1)} integration?`)) return;
+      state[provider] = { connected: false };
+      saveState();
+      renderCards();
+      showToast(`🔌 ${provider} disconnected.`, 'error');
+      closeAllModals();
+    }
+
+    // Check if gitlab OAuth callback returned success
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('token') && state.gitlab.clientId) {
+        state.gitlab.connected = true;
+        saveState();
+        window.history.replaceState({}, '', '/integrations.html');
+        showToast('✅ GitLab connected successfully!');
+      }
+      renderCards();
+    };
+  </script>
+</body>
+</html>
