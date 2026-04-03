@@ -42,12 +42,13 @@ import { Integration } from './organization/integration.entity';
         const dbHost = config.get('DB_HOST');
         if (!dbHost) {
           // Zero-config fallback for cloud demos
+          const isProduction = process.env.NODE_ENV === 'production';
           return {
             type: 'sqlite',
-            database: 'release-guard.sqlite',
+            database: isProduction ? '/tmp/release-guard.sqlite' : 'release-guard.sqlite',
             entities: [Environment, User, Organization, PromotionRule, Integration],
             synchronize: true,
-            logging: true,
+            logging: false,
           };
         }
         return {
