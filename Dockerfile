@@ -21,4 +21,4 @@ EXPOSE 8080
 ENV NODE_ENV=production
 
 # Step 6: Direct, absolute path execution
-CMD ["node", "/app/dist/src/main.js"]
+CMD ["node", "/app/dist/main.js"]
