@@ -26,7 +26,21 @@ async function bootstrap() {
   logger.log(`🚀 Release Guard is LIVE on ${useHost}:${usePort}`);
 }
 
-bootstrap().catch((err) => {
+bootstrap().catch(async (err) => {
   console.error('💥 STARTUP FAILED:', err);
-  process.exit(1);
+  
+  // FALLBACK ERROR SERVER
+  // If NestJS crashes, we still bind to PORT so Cloud Run succeeds, 
+  // and we serve the error message so the user can see exactly what went wrong!
+  const http = require('http');
+  const port = process.env.PORT || 8080;
+  
+  const server = http.createServer((req: any, res: any) => {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end(`RELEASE GUARD STARTUP CRASH:\n\n${err.stack || err.message || err}`);
+  });
+
+  server.listen(port, '0.0.0.0', () => {
+    console.log(`⚠️ FALLBACK ERROR SERVER RUNNING ON PORT ${port}`);
+  });
 });
