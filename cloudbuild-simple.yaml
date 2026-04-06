@@ -19,7 +19,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'release-guard-backend'
+      - 'release-guard-prod'
       - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID'
       - '--platform=managed'
       - '--region=us-central1'

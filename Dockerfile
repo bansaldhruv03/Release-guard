@@ -21,4 +21,4 @@ EXPOSE 8080
 ENV NODE_ENV=production
 
 # Step 6: Direct, absolute path execution
-CMD ["node", "-e", "const http = require('http'); http.createServer((q, r) => r.end('ALIVE')).listen(process.env.PORT || 8080, '0.0.0.0', () => console.log('CONTAINER IS ALIVE ON PORT ' + (process.env.PORT || 8080)));"]
+CMD ["node", "/app/dist/main.js"]
