@@ -11,7 +11,8 @@ async function bootstrap() {
 
   logger.log(`🚀 Release Guard is starting on port ${port}...`);
   
-  const app = await NestFactory.create(AppModule);
+  // Provide abortOnError: false so NestJS throws the error to our catch block instead of calling process.exit(1)
+  const app = await NestFactory.create(AppModule, { abortOnError: false });
 
   app.use(helmet({ contentSecurityPolicy: false }));
   app.enableCors();
