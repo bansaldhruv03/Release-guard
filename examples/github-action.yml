@@ -1,0 +1,34 @@
+# .github/workflows/release-guard.yml
+name: Release Guard
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+
+jobs:
+  policy-check:
+    name: Check Branch Policies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Ensure we fetch history for `git log` checks
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Release Guard CLI
+        run: npm install -g release-guard
+
+      - name: Run Policy Check
+        env:
+          # You can define these in your GitHub repository secrets/variables
+          RG_BACKEND_URL: ${{ vars.RG_BACKEND_URL || 'https://release-guard.your-org.com' }}
+          RG_STRICT_CI: 'true'
+        run: release-guard ci-check

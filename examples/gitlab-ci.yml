@@ -1,0 +1,21 @@
+# .gitlab-ci.yml
+stages:
+  - enforce
+
+release-guard-check:
+  stage: enforce
+  image: node:18-alpine
+  # Run on all merge requests and pushes to default branch
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  variables:
+    RG_BACKEND_URL: "https://release-guard.your-org.com"
+    RG_STRICT_CI: "true"
+  before_script:
+    - apk add --no-cache git
+    # Ensure git history is available for merge commit checks
+    - git fetch --unshallow || true
+    - npm install -g release-guard
+  script:
+    - release-guard ci-check
