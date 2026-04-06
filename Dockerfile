@@ -20,11 +20,5 @@ RUN echo "--- VERIFYING DIST FOLDER ---" && ls -R dist
 EXPOSE 8080
 ENV NODE_ENV=production
 
-# Step 6: Direct, absolute path execution with Safe Wrapper
-CMD ["node", "-e", "\
-  try { \
-    require('/app/dist/main.js'); \
-  } catch (err) { \
-    console.error('FATAL REQUIRE ERROR:', err); \
-    require('http').createServer((q, r) => r.end('CRASH:\\n' + (err.stack || err))).listen(process.env.PORT || 8080, '0.0.0.0', () => console.log('FALLBACK ALIVE')); \
-  }"]
+# Step 6: Execute safe wrapper
+CMD ["node", "wrapper.js"]
