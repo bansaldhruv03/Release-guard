@@ -163,6 +163,27 @@
     </div>
   </div>
 
+  <!-- GITHUB CONNECT MODAL (shown when disconnected) -->
+  <div class="modal" id="githubConnectModal">
+    <h3>Connect GitHub</h3>
+    <div class="subtitle">Reconnect your GitHub OAuth app to restore repo access and webhooks.</div>
+    <div class="form-group">
+      <label>GitHub Client ID</label>
+      <input type="text" id="ghClientId" class="form-control" placeholder="e.g. Ov23liHygeELPFLse5VF" />
+    </div>
+    <div class="form-group">
+      <label>GitHub Client Secret</label>
+      <input type="password" id="ghClientSecret" class="form-control" placeholder="••••••••••••" />
+    </div>
+    <p style="color:var(--text-muted); font-size:0.82rem; margin-top:0.5rem;">
+      Set Callback URL in your GitHub OAuth App to: <code style="color:var(--accent)">/auth/github/callback</code>
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="connectGithub()">Connect GitHub</button>
+    </div>
+  </div>
+
   <!-- GITLAB CONNECT MODAL -->
   <div class="modal" id="gitlabModal">
     <h3>Connect GitLab</h3>
@@ -247,7 +268,7 @@
           <div class="dot green"></div> Connected
         </div>
         <div class="btn-group">
-          <button class="btn btn-secondary" onclick="openModal('githubModal')">⚙️ Settings</button>
+          <button class="btn btn-secondary" id="btn-github" onclick="openGithubModal()">⚙️ Settings</button>
         </div>
       </div>
 
@@ -300,6 +321,18 @@
       renderCard('gitlab', state.gitlab.connected);
       renderCard('jira',   state.jira.connected);
 
+      // Update github button
+      const ghBtn = document.getElementById('btn-github');
+      if (state.github.connected) {
+        ghBtn.textContent = '⚙️ Settings';
+        ghBtn.className = 'btn btn-secondary';
+        ghBtn.onclick = () => openModal('githubModal');
+      } else {
+        ghBtn.textContent = 'Connect GitHub';
+        ghBtn.className = 'btn btn-primary';
+        ghBtn.onclick = () => openModal('githubConnectModal');
+      }
+
       // Update gitlab button
       const glBtn = document.getElementById('btn-gitlab');
       if (state.gitlab.connected) {
@@ -316,6 +349,10 @@
       // Populate jira fields
       if (state.jira.siteUrl) document.getElementById('jiraSiteUrl').value = state.jira.siteUrl;
       if (state.jira.email) document.getElementById('jiraEmail').value = state.jira.email;
+    }
+
+    function openGithubModal() {
+      openModal(state.github.connected ? 'githubModal' : 'githubConnectModal');
     }
 
     function renderCard(provider, isConnected) {
@@ -336,7 +373,7 @@
     }
 
     function closeAllModals() {
-      ['githubModal','gitlabModal','gitlabSettingsModal','jiraModal'].forEach(id => {
+      ['githubModal','githubConnectModal','gitlabModal','gitlabSettingsModal','jiraModal'].forEach(id => {
         document.getElementById(id).style.display = 'none';
       });
       document.getElementById('modalOverlay').style.display = 'none';
@@ -348,6 +385,20 @@
       t.className = `toast ${type}`;
       t.style.display = 'block';
       setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    function connectGithub() {
+      const clientId     = document.getElementById('ghClientId').value.trim();
+      const clientSecret = document.getElementById('ghClientSecret').value.trim();
+      if (!clientId || !clientSecret) {
+        showToast('⚠️ Client ID and Secret are required.', 'error');
+        return;
+      }
+      state.github = { connected: true, clientId };
+      saveState();
+      renderCards();
+      showToast('✅ GitHub connected successfully!');
+      closeAllModals();
     }
 
     function saveGithubSettings() {
