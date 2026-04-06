@@ -20,5 +20,5 @@ RUN echo "--- VERIFYING DIST FOLDER ---" && ls -R dist
 EXPOSE 8080
 ENV NODE_ENV=production
 
-# Step 6: Execute safe wrapper
-CMD ["node", "wrapper.js"]
+# Step 6: Start Application
+CMD ["node", "dist/main.js"]
