@@ -7,13 +7,14 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthResolver } from './auth.resolver';
 import { User } from './entities/user.entity';
+import { Organization } from '../organization/organization.entity';
 import { AuthController } from './auth.controller';
 import { GithubStrategy } from './github.strategy';
 import { GitlabStrategy } from './gitlab.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Organization]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

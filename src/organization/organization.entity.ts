@@ -24,6 +24,10 @@ export class Organization {
   @Column({ default: false })
   requireMfa: boolean;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true, select: false }) // Don't fetch by default for security
+  apiKey?: string;
+
   @Field()
   @CreateDateColumn()
   createdAt: Date;

@@ -298,6 +298,25 @@
         </div>
       </div>
     </div>
+
+    <!-- NEW SECTION: CLI SETUP -->
+    <div class="page-header" style="margin-top: 4rem;">
+      <h2>Developer CLI Setup</h2>
+      <p style="color: var(--text-muted);">Instructions for developers to install Release Guard locally.</p>
+    </div>
+    
+    <div class="glass-card" style="border-left: 4px solid var(--accent);">
+      <h3 style="margin-bottom: 1rem;">1. Install Globally</h3>
+      <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-family: monospace; color: var(--accent); margin-bottom: 1.5rem; overflow-x: auto;">npm install -g release-guard-cli.tgz</pre>
+
+      <h3 style="margin-bottom: 1rem;">2. Authenticate</h3>
+      <p style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.9rem;">Get your API key from the Org Admin page and run:</p>
+      <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-family: monospace; color: var(--accent); margin-bottom: 1.5rem; overflow-x: auto;">release-guard login &lt;YOUR-API-KEY&gt;</pre>
+
+      <h3 style="margin-bottom: 1rem;">3. Initialize Hooks in Repository</h3>
+      <p style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.9rem;">Navigate to your local repository directory and run:</p>
+      <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-family: monospace; color: var(--accent); overflow-x: auto;">release-guard init</pre>
+    </div>
   </main>
 
   <script>
