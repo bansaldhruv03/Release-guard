@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from './organization.entity';
 import { PromotionRule } from './promotion-rule.entity';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class OrganizationService {
@@ -26,6 +27,13 @@ export class OrganizationService {
     const updated = await this.getOrganization(id);
     if (!updated) throw new Error('Organization not found');
     return updated;
+  }
+
+  async generateApiKey(id: string): Promise<string> {
+    const rawKey = crypto.randomBytes(32).toString('hex');
+    const apiKey = `rg_org_${rawKey}`;
+    await this.orgRepo.update(id, { apiKey });
+    return apiKey;
   }
 
   async createPromotionRule(

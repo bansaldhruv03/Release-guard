@@ -26,6 +26,15 @@ export class AuthResolver {
   }
 
   @Mutation(() => LoginResponse)
+  async exchangeApiKey(@Args('apiKey') apiKey: string) {
+    const token = await this.authService.validateApiKey(apiKey);
+    if (!token) {
+      throw new Error('Invalid API Key');
+    }
+    return { access_token: token };
+  }
+
+  @Mutation(() => LoginResponse)
   async socialLogin(
     @Args('provider') provider: string,
     @Args('providerId') providerId: string,

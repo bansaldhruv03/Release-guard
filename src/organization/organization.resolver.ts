@@ -25,6 +25,11 @@ export class OrganizationResolver {
     return this.orgService.setStrictnessLevel(id, level);
   }
 
+  @Mutation(() => String)
+  async generateApiKey(@Args('id', { type: () => ID }) id: string) {
+    return this.orgService.generateApiKey(id);
+  }
+
   @Mutation(() => PromotionRule)
   async createPromotionRule(
     @Args('organizationId', { type: () => ID }) organizationId: string,

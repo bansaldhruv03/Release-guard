@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from './entities/user.entity';
+import { Organization } from '../organization/organization.entity';
 import * as speakeasy from 'speakeasy';
 import * as qrcode from 'qrcode';
 
@@ -20,6 +21,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Organization)
+    private readonly orgRepo: Repository<Organization>,
   ) {}
 
   async registerUser(username: string, pass: string, email: string) {
@@ -66,6 +69,16 @@ export class AuthService {
     const user = await this.userRepo.findOne({ where: { username } });
     if (user && user.password && await bcrypt.compare(pass, user.password)) {
       return { id: user.id, username: user.username, mfaEnabled: user.mfaEnabled, mfaSecret: user.mfaSecret };
+    }
+    return null;
+  }
+
+  async validateApiKey(apiKey: string): Promise<string | null> {
+    const org = await this.orgRepo.findOne({ select: ['id', 'apiKey'], where: { apiKey } });
+    if (org) {
+      // Create a specialized token for the CLI linked to the organization
+      const payload = { orgId: org.id, isApiKey: true };
+      return this.jwtService.sign(payload);
     }
     return null;
   }
