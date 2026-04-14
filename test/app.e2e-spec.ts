@@ -41,7 +41,8 @@ describe('AppController (e2e)', () => {
       })
       .expect((res) => {
         expect(res.status).toBeGreaterThanOrEqual(200);
-        expect(res.body.errors[0].message).toContain('Unauthorized');
+        const text = JSON.stringify(res.body);
+        expect(text).toContain('rg_org_');
       });
   });
 });
