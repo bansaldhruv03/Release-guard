@@ -3,6 +3,7 @@ import { ConsistencyService } from './consistency.service';
 import { GitlabService } from '../gitlab/gitlab.service';
 import { PolicyService } from '../policy/policy.service';
 import { PromotionInput } from './dto/promotion.dto';
+import { AiService } from './ai.service';
 
 describe('ConsistencyService', () => {
   let service: ConsistencyService;
@@ -24,6 +25,12 @@ describe('ConsistencyService', () => {
           provide: PolicyService,
           useValue: {
             findAllEnvironments: jest.fn(),
+          },
+        },
+        {
+          provide: AiService,
+          useValue: {
+            evaluateCommitMessage: jest.fn().mockResolvedValue({ isAcceptable: true, reason: 'Valid' }),
           },
         },
       ],

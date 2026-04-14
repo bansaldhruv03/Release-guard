@@ -7,7 +7,7 @@ import { AppModule } from './../src/app.module';
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -16,10 +16,32 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('REST: should run health check query', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect((res) => {
+        expect(res.body.status).toBe('ok');
+      });
+  });
+
+  it('GraphQL: should reject checkPromotion for unauthenticated request', () => {
+    return request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `
+          mutation {
+            generateApiKey(id: "some-id")
+          }
+        `,
+      })
+      .expect((res) => {
+        expect(res.status).toBeGreaterThanOrEqual(200);
+        expect(res.body.errors[0].message).toContain('Unauthorized');
+      });
   });
 });
