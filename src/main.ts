@@ -37,7 +37,7 @@ bootstrap().catch(async (err) => {
   const port = process.env.PORT || 8080;
   
   const server = http.createServer((req: any, res: any) => {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end(`RELEASE GUARD STARTUP CRASH:\n\n${err.stack || err.message || err}`);
   });
 
