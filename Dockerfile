@@ -21,4 +21,4 @@ EXPOSE 8080
 ENV NODE_ENV=production
 
 # Step 6: Start Application
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
