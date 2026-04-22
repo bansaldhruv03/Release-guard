@@ -1,6 +1,7 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Organization } from './organization.entity';
+import { Project } from './project.entity';
 
 @ObjectType()
 @Entity()
@@ -35,4 +36,11 @@ export class PromotionRule {
   @Field({ nullable: true })
   @Column({ nullable: true })
   organizationId: string;
+
+  @ManyToOne(() => Project, (project) => project.promotionRules, { nullable: true, onDelete: 'CASCADE' })
+  project: Project;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  projectId: string;
 }

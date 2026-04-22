@@ -20,6 +20,11 @@ export class PromotionInput {
   @IsArray()
   @IsOptional()
   ticketIds?: string[];
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  projectId?: string;
 }
 
 @ObjectType()

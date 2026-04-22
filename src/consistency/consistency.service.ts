@@ -25,7 +25,7 @@ export class ConsistencyService {
     );
 
     // 1. Fetch environments
-    const environments = await this.policyService.findAllEnvironments();
+    const environments = await this.policyService.findAllEnvironments(input.projectId);
 
     // Quick validation: is targetBranch an environment branch?
     const targetEnvIndex = environments.findIndex(

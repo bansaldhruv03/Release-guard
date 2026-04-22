@@ -10,6 +10,10 @@ export class DriftInput {
   @Field()
   @IsString()
   lowerBranch: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  projectId?: string;
 }
 
 @ObjectType()

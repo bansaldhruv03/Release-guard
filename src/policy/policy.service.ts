@@ -10,7 +10,11 @@ export class PolicyService {
     private readonly environmentRepository: Repository<Environment>,
   ) {}
 
-  async findAllEnvironments(): Promise<Environment[]> {
-    return this.environmentRepository.find({ order: { orderIndex: 'ASC' } });
+  async findAllEnvironments(projectId?: string): Promise<Environment[]> {
+    const where = projectId ? { projectId } : {};
+    return this.environmentRepository.find({ 
+      where,
+      order: { orderIndex: 'ASC' } 
+    });
   }
 }
