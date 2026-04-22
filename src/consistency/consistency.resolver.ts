@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ConsistencyService } from './consistency.service';
 import { PromotionInput, PromotionResult } from './dto/promotion.dto';
+import { DriftInput, DriftResult } from './dto/drift.dto';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 
 @Resolver()
@@ -21,5 +22,13 @@ export class ConsistencyResolver {
     @Args('input') input: PromotionInput,
   ): Promise<PromotionResult> {
     return this.consistencyService.checkPromotion(input);
+  }
+
+  @Query(() => DriftResult, { name: 'checkDrift' })
+  @UseGuards(GqlAuthGuard)
+  async checkDrift(
+    @Args('input') input: DriftInput,
+  ): Promise<DriftResult> {
+    return this.consistencyService.checkDrift(input);
   }
 }

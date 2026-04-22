@@ -7,6 +7,7 @@ import {
   PromotionResult,
   ReasonDetail,
 } from './dto/promotion.dto';
+import { DriftInput, DriftResult } from './dto/drift.dto';
 
 @Injectable()
 export class ConsistencyService {
@@ -127,6 +128,28 @@ export class ConsistencyService {
       allowed: true,
       status: 'SUCCESS',
       message: 'All commits present in required environments.',
+    };
+  }
+
+  async checkDrift(input: DriftInput): Promise<DriftResult> {
+    this.logger.log(`Checking drift from ${input.upperBranch} to ${input.lowerBranch}`);
+
+    // getCommitDiff(source, target) returns commits in source NOT in target.
+    // If we want to check if upperBranch commits are missing from lowerBranch,
+    // source = upperBranch, target = lowerBranch
+    const missingCommits = await this.gitlabService.getCommitDiff(
+      input.upperBranch,
+      input.lowerBranch,
+    );
+
+    const hasDrift = missingCommits.length > 0;
+
+    return {
+      hasDrift,
+      missingCommits,
+      message: hasDrift
+        ? `Backward drift detected: ${missingCommits.length} commits in ${input.upperBranch} are missing from ${input.lowerBranch}.`
+        : `No drift detected: ${input.lowerBranch} is up to date with ${input.upperBranch}.`,
     };
   }
 }
