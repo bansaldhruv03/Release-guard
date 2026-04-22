@@ -21,6 +21,7 @@ import { ExternalAccount } from './auth/entities/external-account.entity';
 import { OrganizationModule } from './organization/organization.module';
 import { Organization } from './organization/organization.entity';
 import { PromotionRule } from './organization/promotion-rule.entity';
+import { Project } from './organization/project.entity';
 import { Integration } from './organization/integration.entity';
 
 @Module({
@@ -47,7 +48,7 @@ import { Integration } from './organization/integration.entity';
           return {
             type: 'sqlite',
             database: isProduction ? '/tmp/release-guard.sqlite' : 'release-guard.sqlite',
-            entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration],
+            entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration, Project],
             synchronize: true,
             logging: false,
           };
@@ -59,7 +60,7 @@ import { Integration } from './organization/integration.entity';
           username: config.get('DB_USERNAME'),
           password: config.get('DB_PASSWORD'),
           database: config.get('DB_NAME'),
-          entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration],
+          entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration, Project],
           synchronize: true,
         };
       },
