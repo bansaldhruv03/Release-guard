@@ -65,4 +65,9 @@ export class AuthResolver {
   ) {
     return this.authService.verifyMfaSetup(userId, mfaToken);
   }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(@Args('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
 }

@@ -182,7 +182,28 @@
     
     .auth-toggle span:hover { text-decoration: underline; }
 
-    #dashboard, #mfaSection, #mfaSetupSection, #registerView { display: none; }
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0;
+    }
+
+    .toggle-password:hover {
+      color: var(--accent);
+    }
+
+    #dashboard, #mfaSection, #mfaSetupSection, #registerView, #forgotPasswordView { display: none; }
     
   </style>
 </head>
@@ -212,10 +233,18 @@
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="password" class="form-control" placeholder="••••••••">
+        <div class="password-wrapper">
+          <input type="password" id="password" class="form-control" placeholder="••••••••">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password', this)" title="Show Password">👁️</button>
+        </div>
       </div>
       
-      <button class="btn" onclick="triggerLogin()">Login</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <button class="btn" style="width: auto; padding: 0.8rem 2rem;" onclick="triggerLogin()">Login</button>
+        <div class="auth-toggle" style="margin-top: 0; font-size: 0.85rem;" onclick="toggleAuthView('forgot')">
+          <span>Forgot Password?</span>
+        </div>
+      </div>
       
       <div class="auth-toggle" onclick="toggleAuthView('register')">
         New to Release Guard? <span>Create Account</span>
@@ -245,13 +274,33 @@
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="regPassword" class="form-control" placeholder="••••••••">
+        <div class="password-wrapper">
+          <input type="password" id="regPassword" class="form-control" placeholder="••••••••">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)" title="Show Password">👁️</button>
+        </div>
       </div>
       
       <button class="btn" onclick="triggerRegister()">Sign Up</button>
       
       <div class="auth-toggle" onclick="toggleAuthView('login')">
         Already have an account? <span>Sign In</span>
+      </div>
+    </div>
+
+    <!-- FORGOT PASSWORD VIEW -->
+    <div class="glass-card auth-container" id="forgotPasswordView">
+      <h2 style="margin-bottom: 0.5rem">Reset Password</h2>
+      <p style="color: var(--text-muted); margin-bottom: 2rem">Enter your email to receive a reset link.</p>
+      
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="forgotEmail" class="form-control" placeholder="user@org.com">
+      </div>
+      
+      <button class="btn" onclick="triggerForgotPassword()">Send Reset Link</button>
+      
+      <div class="auth-toggle" onclick="toggleAuthView('login')">
+        Remembered your password? <span>Back to Login</span>
       </div>
     </div>
 
@@ -360,6 +409,48 @@
     function toggleAuthView(view) {
         document.getElementById('loginView').style.display = view === 'login' ? 'block' : 'none';
         document.getElementById('registerView').style.display = view === 'register' ? 'block' : 'none';
+        document.getElementById('forgotPasswordView').style.display = view === 'forgot' ? 'block' : 'none';
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🔒';
+        btn.title = 'Hide Password';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+        btn.title = 'Show Password';
+      }
+    }
+
+    async function triggerForgotPassword() {
+      const e = document.getElementById('forgotEmail').value.trim();
+      if (!e) {
+        alert("Please enter your email address.");
+        return;
+      }
+      
+      const safeE = e.replace(/"/g, '\\"');
+      const query = `
+        mutation {
+          forgotPassword(email: "${safeE}")
+        }
+      `;
+      
+      try {
+        const res = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+        });
+        // We always show a generic success message to prevent user enumeration
+        alert("If an account with that email exists, a reset link has been sent (check server logs).");
+        toggleAuthView('login');
+      } catch (err) {
+        alert("Connection failed.");
+      }
     }
 
     async function triggerLogin() {

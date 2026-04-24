@@ -63,6 +63,9 @@ import { JiraModule } from './jira/jira.module';
           database: config.get('DB_NAME'),
           entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration, Project],
           synchronize: true,
+          ssl: {
+            rejectUnauthorized: false,
+          },
         };
       },
     }),
