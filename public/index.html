@@ -281,15 +281,46 @@
     </div>
 
     <!-- DASHBOARD VIEW -->
-    <div id="dashboard">
-      <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
-         <h2 style="font-size: 1.8rem;">Project <span style="color: var(--accent)">API Core</span></h2>
+    <div id="dashboard" style="display: none; animation: fadeIn 0.8s ease-out; width: 100%; max-width: 900px; margin: 0 auto;">
+      <div style="margin-bottom: 3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1.5rem;">
+         <div style="display: inline-block; padding: 0.5rem 1.5rem; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 20px; color: var(--accent); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; animation: pulse 2s infinite;">System Online</div>
+         <h2 style="font-size: 3.5rem; font-weight: 800; background: linear-gradient(to right, #38bdf8, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; margin: 0;">WELCOME TO RELEASE GUARD</h2>
+         <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 700px; line-height: 1.6; margin: 0;">Your enterprise-grade environment consistency pipeline. Guarding your deployments from drift and enforcing strict security policies across your multi-tenant architecture.</p>
       </div>
 
-      <div class="glass-card" style="margin-bottom: 2rem; padding: 3rem; text-align: center;">
-         <h2 style="font-size: 2rem; margin-bottom: 1rem;">Environment Consistency Pipeline</h2>
-         <p style="color: var(--text-muted);">Real-time view of code promotion mapped against your Cloud Deploy targets.</p>
-         <p style="margin-top: 2rem; font-weight: 600; color: var(--success);">All environments synced successfully.</p>
+      <div class="glass-card" style="margin-bottom: 2rem; padding: 3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+         <!-- Decorative background blur -->
+         <div style="position: absolute; top: -50%; left: -20%; width: 300px; height: 300px; background: rgba(167, 139, 250, 0.15); border-radius: 50%; filter: blur(50px); pointer-events: none;"></div>
+         <div style="position: absolute; bottom: -50%; right: -20%; width: 300px; height: 300px; background: rgba(56, 189, 248, 0.15); border-radius: 50%; filter: blur(50px); pointer-events: none;"></div>
+
+         <div style="width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(167, 139, 250, 0.2)); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; border: 2px solid var(--accent); box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); z-index: 1;">
+            <span style="font-size: 3.5rem;">👤</span>
+         </div>
+         <h3 style="font-size: 2.2rem; margin-bottom: 0.5rem; font-weight: 800; letter-spacing: -0.5px; z-index: 1;" id="dashUsername">Loading...</h3>
+         <p style="color: var(--accent); font-weight: 600; margin-bottom: 2.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; z-index: 1;"><span style="font-size: 1.2rem;">✉️</span> <span id="dashEmail">Loading...</span></p>
+
+         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; width: 100%; z-index: 1;">
+            <div style="background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--glass-border); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+               <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏢</div>
+               <div style="font-size: 1.1rem; font-weight: 600; color: var(--success); margin-bottom: 0.3rem;">Isolated</div>
+               <div style="color: var(--text-muted); font-size: 0.85rem;">Multi-Tenant Ready</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--glass-border); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+               <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛡️</div>
+               <div style="font-size: 1.1rem; font-weight: 600; color: var(--warning); margin-bottom: 0.3rem;">Protected</div>
+               <div style="color: var(--text-muted); font-size: 0.85rem;">Policy Enforcement</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--glass-border); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+               <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔄</div>
+               <div style="font-size: 1.1rem; font-weight: 600; color: var(--purple); margin-bottom: 0.3rem;">Synced</div>
+               <div style="color: var(--text-muted); font-size: 0.85rem;">Git Integration</div>
+            </div>
+         </div>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+        <a href="/admin.html" style="text-decoration: none;"><button class="btn" style="width: auto; padding: 0.9rem 2rem; font-size: 1rem; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);">Manage Organization Rules</button></a>
+        <a href="/integrations.html" style="text-decoration: none;"><button class="btn btn-secondary" style="width: auto; padding: 0.9rem 2rem; font-size: 1rem; background: rgba(255,255,255,0.05);">View Integrations</button></a>
       </div>
     </div>
   </main>
@@ -313,10 +344,16 @@
        const token = urlParams.get('token') || sessionStorage.getItem('rg_token');
        if(token) {
            authToken = token;
+           sessionStorage.setItem('rg_token', token);
            const payload = parseJwt(token);
            currentUserId = payload ? payload.sub : null;
            finishLogin();
-           window.history.replaceState({}, document.title, '/');
+           if (urlParams.has('token')) {
+               window.history.replaceState({}, document.title, '/');
+           }
+       } else {
+           // Ensure login view is shown if not authenticated
+           document.getElementById('loginView').style.display = 'block';
        }
     };
 
@@ -326,15 +363,18 @@
     }
 
     async function triggerLogin() {
-      const u = document.getElementById('username').value;
+      const u = document.getElementById('username').value.trim();
       const p = document.getElementById('password').value;
       const errEl = document.getElementById('loginError');
       errEl.style.display = 'none';
 
+      const safeU = u.replace(/"/g, '\\"');
+      const safeP = p.replace(/"/g, '\\"');
+
       // We use GraphQL layer
       const query = `
         mutation {
-          login(username: "${u}", password: "${p}") {
+          login(username: "${safeU}", password: "${safeP}") {
             access_token
           }
         }
@@ -371,13 +411,17 @@
     }
 
     async function triggerRegister() {
-      const u = document.getElementById('regUsername').value;
+      const u = document.getElementById('regUsername').value.trim();
       const p = document.getElementById('regPassword').value;
-      const e = document.getElementById('regEmail').value;
+      const e = document.getElementById('regEmail').value.trim();
+      
+      const safeU = u.replace(/"/g, '\\"');
+      const safeP = p.replace(/"/g, '\\"');
+      const safeE = e.replace(/"/g, '\\"');
       
       const query = `
         mutation {
-          register(username: "${u}", password: "${p}", email: "${e}") {
+          register(username: "${safeU}", password: "${safeP}", email: "${safeE}") {
             access_token
           }
         }
@@ -490,6 +534,15 @@
        document.getElementById('mfaSection').style.display = 'none';
        document.getElementById('dashboard').style.display = 'block';
        document.getElementById('navLinks').style.display = 'flex';
+       
+       // Populate user details on the dashboard
+       if (authToken) {
+           const payload = parseJwt(authToken);
+           if (payload) {
+               document.getElementById('dashUsername').textContent = payload.username || 'User';
+               document.getElementById('dashEmail').textContent = payload.email || 'No email provided';
+           }
+       }
     }
 
     function logout() {

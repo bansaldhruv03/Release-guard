@@ -23,6 +23,7 @@ import { Organization } from './organization/organization.entity';
 import { PromotionRule } from './organization/promotion-rule.entity';
 import { Project } from './organization/project.entity';
 import { Integration } from './organization/integration.entity';
+import { JiraModule } from './jira/jira.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { Integration } from './organization/integration.entity';
     ConsistencyModule,
     GitlabModule,
     OrganizationModule,
+    JiraModule,
     // SeedModule, // Disabled temporarily for faster Cloud Run startup
   ],
   controllers: [AppController],

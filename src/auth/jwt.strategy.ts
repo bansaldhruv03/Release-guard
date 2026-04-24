@@ -24,6 +24,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (payload.isApiKey) {
       return { isApiKey: true, orgId: payload.orgId };
     }
-    return { userId: payload.sub, username: payload.username };
+    return { userId: payload.sub, username: payload.username, orgId: payload.orgId };
   }
 }

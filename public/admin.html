@@ -16,6 +16,7 @@
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
+      --purple: #a78bfa;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -53,29 +54,112 @@
     .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
     .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
     
-    .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; transition: 0.2s; }
-    .btn:hover { background: #0ea5e9; }
+    .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 0.9rem; }
+    .btn:hover { background: #0ea5e9; transform: translateY(-1px); }
     .btn-secondary { background: transparent; border: 1px solid var(--glass-border); }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
     .btn-danger { background: rgba(239, 68, 68, 0.8); }
     .btn-danger:hover { background: rgba(239, 68, 68, 1); }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+
+    /* Project Cards */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem; margin-top: 1rem;
+    }
+    .project-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+      border-radius: 12px; padding: 1.25rem; cursor: pointer;
+      transition: all 0.2s ease; position: relative;
+    }
+    .project-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    .project-card.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.08); }
+    .project-card h4 { font-size: 1rem; margin-bottom: 0.3rem; }
+    .project-card p { font-size: 0.82rem; color: var(--text-muted); }
+    .project-card .delete-btn {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 1rem; opacity: 0; transition: opacity 0.2s;
+    }
+    .project-card:hover .delete-btn { opacity: 1; }
+    .project-card .delete-btn:hover { color: var(--danger); }
+
+    .add-project-card {
+      background: transparent; border: 2px dashed var(--glass-border);
+      border-radius: 12px; padding: 1.25rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      color: var(--text-muted); font-weight: 600; transition: all 0.2s;
+    }
+    .add-project-card:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Project selector in rules */
+    .project-selector {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .project-selector select {
+      padding: 0.5rem 1rem; border-radius: 8px;
+      background: #1e293b; border: 1px solid var(--glass-border);
+      color: var(--text-main); outline: none; font-size: 0.9rem; font-family: inherit;
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+    .project-selector select:focus { border-color: var(--accent); }
+    .project-selector select option {
+      background: #1e293b; color: #f8fafc; padding: 0.5rem;
+    }
+    .project-selector select option:checked { background: #334155; }
 
     /* Modal Form */
-    #ruleModal {
-      display: none; position: fixed; top: 50%; left: 50%; width: 450px;
-      transform: translate(-50%, -50%); z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    }
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 999;
+    }
+    .modal {
+      display: none; position: fixed; top: 50%; left: 50%; width: 450px;
+      transform: translate(-50%, -50%); z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
     .form-control {
       width: 100%; padding: 0.8rem 1.2rem; background: rgba(255,255,255,0.05);
       border: 1px solid var(--glass-border); border-radius: 8px; color: white; outline: none;
+      font-family: inherit; font-size: 0.95rem;
     }
     .form-control:focus { border-color: var(--accent); }
+
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem;
+      border-radius: 12px; font-weight: 600; z-index: 1100;
+      animation: slideIn 0.3s ease; display: none;
+    }
+    .toast.success { background: rgba(16,185,129,0.9); color:#fff; }
+    .toast.error { background: rgba(239,68,68,0.9); color:#fff; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    @keyframes staggerIn { 
+      0% { opacity: 0; transform: translateY(10px); } 
+      100% { opacity: 1; transform: translateY(0); } 
+    }
+
+    main { width: 100%; max-width: 1200px; padding: 3rem 2rem; position: relative; animation: fadeIn 0.6s ease-out; }
+    
+    .project-card { animation: staggerIn 0.5s ease-out backwards; }
+    .project-card:nth-child(1) { animation-delay: 0.1s; }
+    .project-card:nth-child(2) { animation-delay: 0.2s; }
+    .project-card:nth-child(3) { animation-delay: 0.3s; }
+    .project-card:nth-child(4) { animation-delay: 0.4s; }
+    .project-card:nth-child(5) { animation-delay: 0.5s; }
+    
+    tbody tr { transition: all 0.2s ease; animation: staggerIn 0.4s ease-out backwards; }
+    tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+    
+    .modal.show { animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
   </style>
 </head>
 <body>
@@ -89,10 +173,11 @@
     </div>
   </header>
 
-  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+  <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
 
-  <div class="glass-card" id="ruleModal">
-    <h2 id="modalTitle" style="margin-bottom: 1.5rem;">Add New Rule</h2>
+  <!-- RULE MODAL -->
+  <div class="glass-card modal" id="ruleModal">
+    <h2 id="ruleModalTitle" style="margin-bottom: 1.5rem;">Add New Rule</h2>
     <input type="hidden" id="editRuleId" />
     <div class="form-group">
       <label>Source Branch (Pattern)</label>
@@ -114,25 +199,69 @@
     </div>
     <div class="form-group">
       <label>Policy State</label>
-      <select id="isEnforced" class="form-control" style="background:var(--bg-gradient)">
+      <select id="isEnforced" class="form-control" style="background:rgba(15,23,42,0.9)">
         <option value="true">Enforced</option>
         <option value="false">Audit Only</option>
       </select>
     </div>
     <div style="display:flex; gap:1rem; margin-top:2rem;">
       <button class="btn" style="flex:1" onclick="saveRule()">Save</button>
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModals()">Cancel</button>
     </div>
   </div>
 
+  <!-- PROJECT MODAL -->
+  <div class="glass-card modal" id="projectModal">
+    <h2 style="margin-bottom: 1.5rem;">Create New Project</h2>
+    <div class="form-group">
+      <label>Project Name</label>
+      <input type="text" id="projectName" class="form-control" placeholder="e.g. Mobile App">
+    </div>
+    <div class="form-group">
+      <label>Slug (URL-safe identifier)</label>
+      <input type="text" id="projectSlug" class="form-control" placeholder="e.g. mobile-app">
+    </div>
+    <div class="form-group">
+      <label>Description (optional)</label>
+      <input type="text" id="projectDesc" class="form-control" placeholder="Short description of this project">
+    </div>
+    <div style="display:flex; gap:1rem; margin-top:2rem;">
+      <button class="btn" style="flex:1" onclick="createProject()">Create Project</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModals()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
   <main>
+    <!-- PROJECTS SECTION -->
     <div class="glass-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2>📁 Projects</h2>
+          <p style="color: var(--text-muted); margin-top: 0.5rem;">Each project has its own branching strategy and promotion rules.</p>
+        </div>
+      </div>
+      <div class="projects-grid" id="projectsGrid">
+        <div class="add-project-card" onclick="openProjectModal()">+ Add Project</div>
+      </div>
+    </div>
+
+    <!-- RULES SECTION (scoped to selected project) -->
+    <div class="glass-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
         <div>
           <h2>Branching Strategy & Promotion Rules</h2>
           <p style="color: var(--text-muted); margin-top: 0.5rem;">Define how code promotes through your environments.</p>
         </div>
-        <button class="btn" onclick="openAddModal()">+ Add New Rule</button>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <div class="project-selector">
+            <select id="ruleProjectFilter" onchange="fetchRules()">
+              <option value="">All Projects (Org-level)</option>
+            </select>
+          </div>
+          <button class="btn" onclick="openAddRuleModal()">+ Add New Rule</button>
+        </div>
       </div>
       
       <table>
@@ -147,7 +276,6 @@
           </tr>
         </thead>
         <tbody id="rulesTable">
-          <!-- Populated dynamically via GraphQL -->
           <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Loading Rules...</td></tr>
         </tbody>
       </table>
@@ -175,7 +303,7 @@
       </table>
     </div>
 
-    <!-- NEW SECTION: API Authentication Key -->
+    <!-- API KEY SECTION -->
     <div class="glass-card" style="margin-top: 2rem; border-color: var(--accent);">
       <h2>Developer API Key</h2>
       <p style="color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1rem;">
@@ -192,35 +320,189 @@
   </main>
 
   <script>
-    // Hardcoded demo Org ID for POC simplicity since creating org flows aren't built
     const ORG_ID = "def1024b-abcd-4114-1234-abcd00000001";
     let loadedRules = [];
+    let loadedProjects = [];
+    let activeProjectId = null;
 
-    async function fetchRules() {
-      const query = `
-        query {
-          promotionRules(organizationId: "${ORG_ID}") {
-            id sourceBranch targetBranch sourceEnvironment targetEnvironment allowed
-          }
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      document.getElementById('modalOverlay').style.display = 'block';
+      modal.style.display = 'block';
+      // Trigger reflow for animation
+      void modal.offsetWidth;
+      modal.classList.add('show');
+    }
+
+    function closeAllModals() {
+      document.getElementById('modalOverlay').style.display = 'none';
+      const modals = ['projectModal', 'ruleModal'];
+      modals.forEach(m => {
+        const modal = document.getElementById(m);
+        modal.classList.remove('show');
+        setTimeout(() => { modal.style.display = 'none'; }, 200); // Wait for transition out if added
+      });
+    }
+
+    // ─── Projects ──────────────────────────────────────────────────────────
+
+    function openProjectModal() {
+      document.getElementById('projectName').value = '';
+      document.getElementById('projectSlug').value = '';
+      document.getElementById('projectDesc').value = '';
+      document.getElementById('projectModal').style.display = 'block';
+      document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    // Auto-generate slug from name
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('projectName');
+      const slugInput = document.getElementById('projectSlug');
+      nameInput.addEventListener('input', () => {
+        slugInput.value = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      });
+    });
+
+    async function fetchProjects() {
+      try {
+        const query = `query { projects { id name slug description createdAt } }`;
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('rg_token') || '') },
+          body: JSON.stringify({ query })
+        });
+        const result = await res.json();
+        if (result.errors || !result.data) {
+          console.warn('Projects query failed, using empty list');
+          loadedProjects = [];
+        } else {
+          loadedProjects = result.data.projects || [];
         }
-      `;
+        renderProjects();
+        populateProjectFilter();
+      } catch(e) { console.error(e); }
+    }
+
+    function renderProjects() {
+      const grid = document.getElementById('projectsGrid');
+      const cards = loadedProjects.map(p => `
+        <div class="project-card ${activeProjectId === p.id ? 'active' : ''}" onclick="selectProject('${p.id}')">
+          <button class="delete-btn" onclick="event.stopPropagation(); deleteProject('${p.id}', '${p.name}')" title="Delete project">✕</button>
+          <h4>📂 ${p.name}</h4>
+          <p>${p.description || p.slug}</p>
+        </div>
+      `).join('');
+      grid.innerHTML = cards + `<div class="add-project-card" onclick="openProjectModal()">+ Add Project</div>`;
+    }
+
+    function populateProjectFilter() {
+      const sel = document.getElementById('ruleProjectFilter');
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">All Projects (Org-level)</option>';
+      loadedProjects.forEach(p => {
+        sel.innerHTML += `<option value="${p.id}" ${currentVal === p.id ? 'selected' : ''}>${p.name}</option>`;
+      });
+    }
+
+    function selectProject(id) {
+      activeProjectId = (activeProjectId === id) ? null : id;
+      document.getElementById('ruleProjectFilter').value = activeProjectId || '';
+      renderProjects();
+      fetchRules();
+    }
+
+    async function createProject() {
+      const name = document.getElementById('projectName').value.trim();
+      const slug = document.getElementById('projectSlug').value.trim();
+      const desc = document.getElementById('projectDesc').value.trim();
+      if (!name || !slug) { showToast('Name and Slug are required', 'error'); return; }
+
+      const mutation = `mutation { createProject(name: "${name}", slug: "${slug}", description: "${desc}") { id } }`;
       try {
         const res = await fetch('/graphql', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('rg_token') || '') },
+          body: JSON.stringify({ query: mutation })
+        });
+        const result = await res.json();
+        if (result.errors) { showToast('Error: ' + result.errors[0].message, 'error'); return; }
+        showToast('✅ Project created!');
+        closeAllModals();
+        fetchProjects();
+      } catch(e) { showToast('Failed to create project', 'error'); }
+    }
+
+    async function deleteProject(id, name) {
+      if (!confirm(`Delete project "${name}" and all its rules?`)) return;
+      const mutation = `mutation { deleteProject(id: "${id}") }`;
+      try {
+        await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('rg_token') || '') },
+          body: JSON.stringify({ query: mutation })
+        });
+        if (activeProjectId === id) activeProjectId = null;
+        showToast('🗑️ Project deleted');
+        fetchProjects();
+        fetchRules();
+      } catch(e) { showToast('Failed to delete', 'error'); }
+    }
+
+    // ─── Rules ──────────────────────────────────────────────────────────────
+
+    function openAddRuleModal() {
+      document.getElementById('ruleModalTitle').innerText = 'Add New Rule';
+      document.getElementById('editRuleId').value = '';
+      document.getElementById('sourceBranch').value = '';
+      document.getElementById('targetBranch').value = '';
+      document.getElementById('sourceEnv').value = '';
+      document.getElementById('targetEnv').value = '';
+      document.getElementById('isEnforced').value = 'true';
+      document.getElementById('ruleModal').style.display = 'block';
+      document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    function openEditModal(id) {
+      document.getElementById('ruleModalTitle').innerText = 'Edit Rule';
+      const rule = loadedRules.find(r => r.id === id);
+      document.getElementById('editRuleId').value = rule.id;
+      document.getElementById('sourceBranch').value = rule.sourceBranch;
+      document.getElementById('targetBranch').value = rule.targetBranch;
+      document.getElementById('sourceEnv').value = rule.sourceEnvironment || '';
+      document.getElementById('targetEnv').value = rule.targetEnvironment || '';
+      document.getElementById('isEnforced').value = rule.allowed ? 'true' : 'false';
+      document.getElementById('ruleModal').style.display = 'block';
+      document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    async function fetchRules() {
+      const projectId = document.getElementById('ruleProjectFilter').value;
+      const projectArg = projectId ? `, projectId: "${projectId}"` : '';
+      const query = `query { promotionRules${projectArg ? `(projectId: "${projectId}")` : ''} { id sourceBranch targetBranch sourceEnvironment targetEnvironment allowed } }`;
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('rg_token') || '') },
           body: JSON.stringify({ query })
         });
         const result = await res.json();
         const tbody = document.getElementById('rulesTable');
         if (result.errors || !result.data) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger)">Failed to load. Missing org or DB error. Creating default schema on next mutation...</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger)">Failed to load rules.</td></tr>`;
           return;
         }
         loadedRules = result.data.promotionRules || [];
         
         if (loadedRules.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No rules configured yet.</td></tr>`;
-            return;
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No rules configured yet. Click "+ Add New Rule" to get started.</td></tr>`;
+          return;
         }
 
         tbody.innerHTML = loadedRules.map(rule => `
@@ -231,44 +513,12 @@
             <td>${rule.targetEnvironment || '-'}</td>
             <td><span class="badge ${rule.allowed ? 'badge-success' : 'badge-warning'}">${rule.allowed ? 'Enforced' : 'Audit Only'}</span></td>
             <td>
-              <button class="btn" style="margin-right:0.5rem;" onclick="openEditModal('${rule.id}')">Edit</button>
-              <button class="btn btn-danger" onclick="deleteRule('${rule.id}')">Delete</button>
+              <button class="btn btn-sm" style="margin-right:0.5rem;" onclick="openEditModal('${rule.id}')">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteRule('${rule.id}')">Delete</button>
             </td>
           </tr>
         `).join('');
-      } catch (err) { }
-    }
-
-    function openAddModal() {
-      document.getElementById('modalTitle').innerText = 'Add New Rule';
-      document.getElementById('editRuleId').value = '';
-      document.getElementById('sourceBranch').value = '';
-      document.getElementById('targetBranch').value = '';
-      document.getElementById('sourceEnv').value = '';
-      document.getElementById('targetEnv').value = '';
-      document.getElementById('isEnforced').value = 'true';
-      
-      document.getElementById('ruleModal').style.display = 'block';
-      document.getElementById('modalOverlay').style.display = 'block';
-    }
-
-    function openEditModal(id) {
-      document.getElementById('modalTitle').innerText = 'Edit Rule';
-      const rule = loadedRules.find(r => r.id === id);
-      document.getElementById('editRuleId').value = rule.id;
-      document.getElementById('sourceBranch').value = rule.sourceBranch;
-      document.getElementById('targetBranch').value = rule.targetBranch;
-      document.getElementById('sourceEnv').value = rule.sourceEnvironment || '';
-      document.getElementById('targetEnv').value = rule.targetEnvironment || '';
-      document.getElementById('isEnforced').value = rule.allowed ? 'true' : 'false';
-      
-      document.getElementById('ruleModal').style.display = 'block';
-      document.getElementById('modalOverlay').style.display = 'block';
-    }
-
-    function closeModal() {
-      document.getElementById('ruleModal').style.display = 'none';
-      document.getElementById('modalOverlay').style.display = 'none';
+      } catch (err) { console.error(err); }
     }
 
     async function saveRule() {
@@ -281,7 +531,10 @@
         allowed: document.getElementById('isEnforced').value === 'true'
       };
 
-      if (!data.sourceBranch || !data.targetBranch) return alert("Source and Target Branch are required");
+      if (!data.sourceBranch || !data.targetBranch) return showToast("Source and Target Branch are required", "error");
+
+      const selectedProject = document.getElementById('ruleProjectFilter').value;
+      const projectArg = selectedProject ? `, projectId: "${selectedProject}"` : '';
 
       const isUpdate = !!id;
       const mutation = isUpdate ? `
@@ -298,21 +551,23 @@
       ` : `
         mutation {
           createPromotionRule(
-             organizationId: "${ORG_ID}",
              sourceBranch: "${data.sourceBranch}",
              targetBranch: "${data.targetBranch}",
              sourceEnvironment: "${data.sourceEnvironment}",
              targetEnvironment: "${data.targetEnvironment}",
              allowed: ${data.allowed}
+             ${projectArg}
           ) { id }
         }
       `;
 
       await fetch('/graphql', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('rg_token') || '') },
         body: JSON.stringify({ query: mutation })
       });
-      closeModal();
+      showToast(isUpdate ? '✅ Rule updated!' : '✅ Rule created!');
+      closeAllModals();
       fetchRules();
     }
 
@@ -323,6 +578,7 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
       });
+      showToast('🗑️ Rule deleted');
       fetchRules();
     }
 
@@ -338,18 +594,22 @@
         const result = await res.json();
         
         if (result.errors) {
-            alert("Error generating Key: " + result.errors[0].message);
+            showToast("Error generating Key: " + result.errors[0].message, 'error');
             return;
         }
 
         const newKey = result.data.generateApiKey;
         document.getElementById('apiKeyDisplay').value = newKey;
+        showToast('🔑 New API key generated!');
       } catch (e) {
-        alert("Failed to reach server.");
+        showToast("Failed to reach server.", 'error');
       }
     }
 
-    window.onload = fetchRules;
+    window.onload = () => {
+      fetchProjects();
+      fetchRules();
+    };
   </script>
 </body>
 </html>

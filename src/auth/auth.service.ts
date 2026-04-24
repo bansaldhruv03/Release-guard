@@ -13,6 +13,8 @@ interface ValidatedUser {
   username: string;
   mfaEnabled: boolean;
   mfaSecret?: string;
+  organizationId?: string;
+  email?: string;
 }
 
 @Injectable()
@@ -36,9 +38,16 @@ export class AuthService {
       email,
       role: 'user',
       mfaEnabled: false,
+      organizationId: "def1024b-abcd-4114-1234-abcd00000001" // Default Org
     });
     await this.userRepo.save(user);
-    return this.login({ id: user.id, username: user.username, mfaEnabled: user.mfaEnabled });
+    return this.login({ 
+      id: user.id, 
+      username: user.username, 
+      mfaEnabled: user.mfaEnabled,
+      organizationId: user.organizationId,
+      email: user.email
+    });
   }
 
   login(user: ValidatedUser, mfaToken?: string): { access_token: string } {
@@ -59,7 +68,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid MFA token');
       }
     }
-    const payload = { username: user.username, sub: user.id };
+    const payload = { username: user.username, sub: user.id, orgId: user.organizationId, email: user.email || '' };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -68,7 +77,14 @@ export class AuthService {
   async validateUser(username: string, pass: string): Promise<ValidatedUser | null> {
     const user = await this.userRepo.findOne({ where: { username } });
     if (user && user.password && await bcrypt.compare(pass, user.password)) {
-      return { id: user.id, username: user.username, mfaEnabled: user.mfaEnabled, mfaSecret: user.mfaSecret };
+      return { 
+        id: user.id, 
+        username: user.username, 
+        mfaEnabled: user.mfaEnabled, 
+        mfaSecret: user.mfaSecret,
+        organizationId: user.organizationId,
+        email: user.email
+      };
     }
     return null;
   }
@@ -102,7 +118,14 @@ export class AuthService {
       });
       await this.userRepo.save(user);
     }
-    return { id: user.id, username: user.username, mfaEnabled: user.mfaEnabled, mfaSecret: user.mfaSecret };
+    return { 
+      id: user.id, 
+      username: user.username, 
+      mfaEnabled: user.mfaEnabled, 
+      mfaSecret: user.mfaSecret,
+      organizationId: user.organizationId,
+      email: user.email
+    };
   }
 
   async generateMfaSecret(userId: number): Promise<string> {

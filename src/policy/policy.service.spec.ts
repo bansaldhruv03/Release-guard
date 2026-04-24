@@ -41,7 +41,7 @@ describe('PolicyService', () => {
 
       const result = await service.findAllEnvironments();
 
-      expect(findMock).toHaveBeenCalledWith({ order: { orderIndex: 'ASC' } });
+      expect(findMock).toHaveBeenCalledWith({ where: {}, order: { orderIndex: 'ASC' } });
       expect(result).toEqual(mockEnvs);
     });
   });

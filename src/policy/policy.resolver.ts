@@ -3,6 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { PolicyService } from './policy.service';
 import { Environment } from './entities/environment.entity';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 @Resolver(() => Environment)
 export class PolicyResolver {
@@ -10,7 +11,10 @@ export class PolicyResolver {
 
   @Query(() => [Environment], { name: 'environments' })
   @UseGuards(GqlAuthGuard)
-  async getEnvironments() {
-    return this.policyService.findAllEnvironments();
+  async getEnvironments(
+    @CurrentUser() user: any,
+    @Args('projectId', { nullable: true }) projectId?: string,
+  ) {
+    return this.policyService.findAllEnvironments(projectId);
   }
 }

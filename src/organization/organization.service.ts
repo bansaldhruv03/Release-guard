@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Organization } from './organization.entity';
 import { PromotionRule } from './promotion-rule.entity';
+import { Project } from './project.entity';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -12,14 +13,12 @@ export class OrganizationService {
     private orgRepo: Repository<Organization>,
     @InjectRepository(PromotionRule)
     private ruleRepo: Repository<PromotionRule>,
+    @InjectRepository(Project)
+    private projectRepo: Repository<Project>,
   ) {}
 
   async getOrganization(id: string): Promise<Organization | null> {
     return this.orgRepo.findOne({ where: { id } });
-  }
-
-  async getPromotionRules(organizationId: string): Promise<PromotionRule[]> {
-    return this.ruleRepo.find({ where: { organizationId } });
   }
 
   async setStrictnessLevel(id: string, level: string): Promise<Organization> {
@@ -36,6 +35,46 @@ export class OrganizationService {
     return apiKey;
   }
 
+  // ─── Projects ─────────────────────────────────────────────────────────────
+
+  async getProjects(organizationId: string): Promise<Project[]> {
+    return this.projectRepo.find({ where: { organizationId }, order: { createdAt: 'ASC' } });
+  }
+
+  async createProject(
+    organizationId: string,
+    name: string,
+    slug: string,
+    description?: string,
+  ): Promise<Project> {
+    const project = this.projectRepo.create({
+      organizationId,
+      name,
+      slug,
+      description,
+    });
+    return this.projectRepo.save(project);
+  }
+
+  async deleteProject(organizationId: string, id: string): Promise<boolean> {
+    const project = await this.projectRepo.findOne({ where: { id, organizationId } });
+    if (!project) throw new Error('Project not found or access denied');
+    const result = await this.projectRepo.delete(id);
+    return result.affected ? result.affected > 0 : false;
+  }
+
+  // ─── Promotion Rules ──────────────────────────────────────────────────────
+
+  async getPromotionRules(organizationId: string, projectId?: string): Promise<PromotionRule[]> {
+    const where: any = { organizationId };
+    if (projectId) {
+      where.projectId = projectId;
+    } else {
+      where.projectId = IsNull();
+    }
+    return this.ruleRepo.find({ where });
+  }
+
   async createPromotionRule(
     organizationId: string,
     sourceBranch: string,
@@ -43,6 +82,7 @@ export class OrganizationService {
     sourceEnvironment?: string,
     targetEnvironment?: string,
     allowed?: boolean,
+    projectId?: string,
   ): Promise<PromotionRule> {
     const rule = this.ruleRepo.create({
       organizationId,
@@ -51,6 +91,7 @@ export class OrganizationService {
       sourceEnvironment,
       targetEnvironment,
       allowed: allowed !== undefined ? allowed : true,
+      projectId,
     });
     return this.ruleRepo.save(rule);
   }
