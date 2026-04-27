@@ -75,8 +75,14 @@ export class AuthService {
     };
   }
 
-  async validateUser(username: string, pass: string): Promise<ValidatedUser | null> {
-    const user = await this.userRepo.findOne({ where: { username } });
+  async validateUser(usernameOrEmail: string, pass: string): Promise<ValidatedUser | null> {
+    // Allow login with either username or email
+    const user = await this.userRepo.findOne({
+      where: [
+        { username: usernameOrEmail },
+        { email: usernameOrEmail },
+      ],
+    });
     if (user && user.password && await bcrypt.compare(pass, user.password)) {
       return { 
         id: user.id, 
