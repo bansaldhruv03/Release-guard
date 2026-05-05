@@ -14,22 +14,27 @@ export class MailService {
   private async initTransporter() {
     const user = this.config.get<string>('SMTP_USER');
     const pass = this.config.get<string>('SMTP_PASS');
+    const host = this.config.get<string>('SMTP_HOST') || 'smtp-relay.brevo.com';
+    const port = parseInt(this.config.get<string>('SMTP_PORT') || '587');
 
     if (user && pass) {
       this.transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host,
+        port,
+        secure: false,
         auth: { user, pass },
       });
+      this.logger.log(`Mail transporter initialized with SMTP host: ${host}`);
     } else {
       this.logger.warn('No SMTP credentials found. Creating an Ethereal test account for local development...');
       const testAccount = await nodemailer.createTestAccount();
       this.transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
-        secure: false, // true for 465, false for other ports
+        secure: false,
         auth: {
-          user: testAccount.user, // generated ethereal user
-          pass: testAccount.pass, // generated ethereal password
+          user: testAccount.user,
+          pass: testAccount.pass,
         },
       });
       // Store the ethereal user to use as 'from' address

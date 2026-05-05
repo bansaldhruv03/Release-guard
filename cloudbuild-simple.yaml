@@ -43,7 +43,7 @@ steps:
       - '--timeout=600'
       - '--min-instances=0'
       - '--max-instances=10'
-      - '--set-env-vars=NODE_ENV=production'
+      - '--set-env-vars=NODE_ENV=production,SMTP_HOST=smtp-relay.brevo.com,SMTP_PORT=587,SMTP_USER=aa47ff001@smtp-brevo.com,SMTP_PASS=xsmtpsib-40a98906dfebaf9622d0939770599756fa5f3effdd7e43c0d48d90dd2903f896-YsgvYY7CTPfox2ga'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID'
