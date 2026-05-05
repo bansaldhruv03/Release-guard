@@ -11,11 +11,13 @@ import { Organization } from '../organization/organization.entity';
 import { AuthController } from './auth.controller';
 import { GithubStrategy } from './github.strategy';
 import { GitlabStrategy } from './gitlab.strategy';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Organization]),
     PassportModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

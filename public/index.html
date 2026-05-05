@@ -446,7 +446,7 @@
             body: JSON.stringify({ query })
         });
         // We always show a generic success message to prevent user enumeration
-        alert("If an account with that email exists, a reset link has been sent (check server logs).");
+        alert("If an account with that email exists, a password reset link has been sent to your email inbox.");
         toggleAuthView('login');
       } catch (err) {
         alert("Connection failed.");

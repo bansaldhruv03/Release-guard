@@ -54,4 +54,10 @@ export class User {
   @Field({ nullable: true })
   @Column({ nullable: true })
   organizationId?: string;
+
+  @Column({ nullable: true })
+  resetToken?: string;
+
+  @Column({ nullable: true, type: 'datetime' })
+  resetTokenExpiry?: Date;
 }

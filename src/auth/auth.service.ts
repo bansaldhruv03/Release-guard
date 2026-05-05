@@ -8,6 +8,8 @@ import { Organization } from '../organization/organization.entity';
 import * as speakeasy from 'speakeasy';
 import * as qrcode from 'qrcode';
 import { randomBytes } from 'crypto';
+import { MailService } from '../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 interface ValidatedUser {
   id: number;
@@ -22,6 +24,8 @@ interface ValidatedUser {
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
+    private readonly config: ConfigService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     @InjectRepository(Organization)
@@ -175,14 +179,37 @@ export class AuthService {
   async forgotPassword(email: string): Promise<boolean> {
     const user = await this.userRepo.findOne({ where: { email } });
     if (user) {
-      // Production Grade: In a real system with an SMTP server, you would
-      // generate a secure token, save it to the user record, and email the link.
-      // Since no SMTP server is configured, we safely log it locally to prevent enumeration.
-      const mockResetToken = randomBytes(32).toString('hex');
-      console.log(`\n[SECURITY] Password reset requested for ${email}.`);
-      console.log(`[ACTION REQUIRED] Simulated Reset Token: ${mockResetToken}\n`);
+      // Generate a secure, single-use token with a 1-hour expiry
+      const token = randomBytes(32).toString('hex');
+      user.resetToken = token;
+      user.resetTokenExpiry = new Date(Date.now() + 3600 * 1000); // 1 hour
+      await this.userRepo.save(user);
+
+      const appUrl = this.config.get<string>('APP_URL') || 'http://localhost:3000';
+      const resetUrl = `${appUrl}/reset-password.html?token=${token}`;
+      await this.mailService.sendPasswordResetEmail(email, resetUrl);
     }
-    // Always return true to prevent attackers from querying valid emails
+    // Always return true to prevent attackers from enumerating valid emails
+    return true;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const user = await this.userRepo.findOne({ where: { resetToken: token } });
+
+    if (!user || !user.resetTokenExpiry) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (new Date() > user.resetTokenExpiry) {
+      throw new BadRequestException('Reset token has expired. Please request a new one.');
+    }
+
+    // Hash the new password and clear the reset token atomically
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await this.userRepo.save(user);
+
     return true;
   }
 }

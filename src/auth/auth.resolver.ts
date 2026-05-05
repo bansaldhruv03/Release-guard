@@ -70,4 +70,12 @@ export class AuthResolver {
   async forgotPassword(@Args('email') email: string) {
     return this.authService.forgotPassword(email);
   }
+
+  @Mutation(() => Boolean)
+  async resetPassword(
+    @Args('token') token: string,
+    @Args('newPassword') newPassword: string,
+  ) {
+    return this.authService.resetPassword(token, newPassword);
+  }
 }
