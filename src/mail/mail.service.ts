@@ -50,7 +50,7 @@ export class MailService {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    const from = this.config.get<string>('SMTP_USER') || this.testEmailAccount || 'test@ethereal.email';
+    const from = this.config.get<string>('SMTP_FROM') || 'releaseguard189@gmail.com';
     const mailOptions = {
       from: `"Release Guard" <${from}>`,
       to,
