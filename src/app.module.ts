@@ -46,9 +46,12 @@ import { JiraModule } from './jira/jira.module';
         if (!dbHost) {
           // Zero-config fallback for cloud demos
           const isProduction = process.env.NODE_ENV === 'production';
+          if (isProduction) {
+            throw new Error('DB_HOST is not set. A PostgreSQL database is required in production.');
+          }
           return {
             type: 'sqlite',
-            database: isProduction ? '/tmp/release-guard.sqlite' : 'release-guard.sqlite',
+            database: 'release-guard.sqlite',
             entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration, Project],
             synchronize: true,
             logging: false,
@@ -62,7 +65,7 @@ import { JiraModule } from './jira/jira.module';
           password: config.get('DB_PASSWORD'),
           database: config.get('DB_NAME'),
           entities: [Environment, User, ExternalAccount, Organization, PromotionRule, Integration, Project],
-          synchronize: true,
+          synchronize: process.env.NODE_ENV !== 'production',
           ssl: {
             rejectUnauthorized: false,
           },

@@ -37,8 +37,8 @@ bootstrap().catch(async (err) => {
   const port = process.env.PORT || 8080;
   
   const server = http.createServer((req: any, res: any) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(`RELEASE GUARD STARTUP CRASH:\n\n${err.stack || err.message || err}`);
+    res.writeHead(503, { 'Content-Type': 'text/plain' });
+    res.end('Service temporarily unavailable. Please try again later.');
   });
 
   server.listen(port, '0.0.0.0', () => {
