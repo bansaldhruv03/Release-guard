@@ -26,7 +26,14 @@ steps:
       - 'push'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID'
 
-  # Step 3: Deploy directly to Cloud Run
+  # Step 3: Explicitly clear old secrets to avoid type conflict during deploy
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'gcloud run services update release-guard-prod --region=us-central1 --clear-secrets || true'
+
+  # Step 4: Deploy directly to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
