@@ -1,9 +1,9 @@
 steps:
-  # QA Gate: Run Unit Tests and E2E Tests
+  # QA Gate: Run Unit Tests
   - name: 'node:20'
     entrypoint: 'npm'
     args: ['install']
-  
+
   - name: 'node:20'
     entrypoint: 'npm'
     args: ['run', 'test']
@@ -26,7 +26,7 @@ steps:
       - 'push'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID'
 
-  # Step 3: Deploy DIRECTLY to Cloud Run (no Cloud Deploy pipeline needed)
+  # Step 3: Deploy directly to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
@@ -43,8 +43,7 @@ steps:
       - '--timeout=600'
       - '--min-instances=0'
       - '--max-instances=10'
-      - '--set-env-vars=NODE_ENV=production,APP_URL=https://release-guard-prod-623828031948.us-central1.run.app,SMTP_HOST=smtp-relay.brevo.com,SMTP_PORT=587,SMTP_USER=aa47ff001@smtp-brevo.com,SMTP_FROM=releaseguard189@gmail.com'
-      - '--update-secrets=SMTP_PASS=SMTP_PASS:latest,JWT_SECRET=JWT_SECRET:latest'
+      - '--set-env-vars=NODE_ENV=production,APP_URL=https://release-guard-prod-623828031948.us-central1.run.app,SMTP_HOST=smtp-relay.brevo.com,SMTP_PORT=587,SMTP_USER=aa47ff001@smtp-brevo.com,SMTP_FROM=releaseguard189@gmail.com,SMTP_PASS=xsmtpsib-40a98906dfebaf9622d0939770599756fa5f3effdd7e43c0d48d90dd2903f896-YsgvYY7CTPfox2ga,JWT_SECRET=rg-jwt-secret-prod-2026-xK9mN3pQ'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo/release-guard-backend:$BUILD_ID'
